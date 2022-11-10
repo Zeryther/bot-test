@@ -1,5 +1,5 @@
 const { REST, Routes } = require('discord.js');
-const { clientId, guildId, token } = require('./config.json');
+const { clientId, token } = require('./config.json');
 const fs = require('node:fs');
 
 const commands = [];
@@ -20,9 +20,17 @@ const rest = new REST({ version: '10' }).setToken(token);
 	try {
 		console.log(`Started refreshing ${commands.length} application (/) commands.`);
 
+        const guildId = "389140727243735053";
+
+        const guildCommands = await rest.get(Routes.applicationGuildCommands(clientId, guildId));
+
+        for (const guildCommand of guildCommands) {
+            await rest.delete(Routes.applicationGuildCommand(clientId, guildId, guildCommand.id));
+        }
+
 		// The put method is used to fully refresh all commands in the guild with the current set
 		const data = await rest.put(
-			Routes.applicationGuildCommands(clientId, guildId),
+			Routes.applicationCommands(clientId),
 			{ body: commands },
 		);
 
